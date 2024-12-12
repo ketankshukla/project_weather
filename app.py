@@ -7,7 +7,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
-OPENWEATHER_API_KEY = "428dcb99096d2ff2c1cfd42c7166a93f"  # Direct assignment for testing
+OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY')
+if not OPENWEATHER_API_KEY:
+    raise ValueError("No OpenWeather API key found. Please set the OPENWEATHER_API_KEY environment variable.")
 print(f"API Key being used: {OPENWEATHER_API_KEY}")  # Debug print
 WEATHER_API_URL = "http://api.openweathermap.org/data/2.5/weather"
 
