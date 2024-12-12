@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Weather Dashboard</h1>
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="Enter city name...">
+            <button onclick="getWeather()">Search</button>
+        </div>
+        
+        <div class="weather-card" id="weatherCard" style="display: none;">
+            <h2 id="cityName"></h2>
+            <div class="weather-info">
+                <img id="weatherIcon" src="" alt="Weather Icon">
+                <div class="temperature">
+                    <span id="temperature"></span>°C
+                </div>
+                <div class="description" id="description"></div>
+                <div class="humidity">
+                    Humidity: <span id="humidity"></span>%
+                </div>
+            </div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+    </div>
+
+    <script>
+        function getWeather() {
+            const city = document.getElementById('cityInput').value;
+            if (!city) return;
+
+            fetch(`/weather?city=${encodeURIComponent(city)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        showError(data.error);
+                        return;
+                    }
+                    
+                    document.getElementById('weatherCard').style.display = 'block';
+                    document.getElementById('error').style.display = 'none';
+                    
+                    document.getElementById('cityName').textContent = data.city;
+                    document.getElementById('temperature').textContent = Math.round(data.temperature);
+                    document.getElementById('humidity').textContent = data.humidity;
+                    document.getElementById('description').textContent = 
+                        data.description.charAt(0).toUpperCase() + data.description.slice(1);
+                    document.getElementById('weatherIcon').src = 
+                        `http://openweathermap.org/img/wn/${data.icon}@2x.png`;
+                })
+                .catch(error => showError('Failed to fetch weather data'));
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('weatherCard').style.display = 'none';
+        }
+
+        // Allow Enter key to trigger search
+        document.getElementById('cityInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getWeather();
+            }
+        });
+    </script>
+</body>
+</html>
